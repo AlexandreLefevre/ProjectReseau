@@ -1,4 +1,4 @@
-acl "trusted" {
+acl trusted {
         51.77.245.39;   #nathan
         51.77.245.38;   #timothy
         51.77.245.40;   #alexandre
