@@ -1,0 +1,12 @@
+Fail2Ban, en deux mots, c’est un petit utilitaire qui permet de configurer le parefeu iptables de Linux à la volée. Vous lui donnez une liste de règles, lesquelles lui permettent de détecter si quelqu’un tente de bruteforcer votre SSH, de vous faire un DoS sur Apache etc, et à la volée, Fail2Ban prend les mesures qui s’imposent pour vous prémunir de ces attaques.
+
+Nous avons changé : 
+
+Dans notre configuration assez simple, nous avons activé les jails proposées par défaut tel que : 
+
+[ssh]
+[ssh-ddos] -> ddos attaques(trop de conexion pour le serveur)
+[dropbear] -> créer un acces restraint ssh
+[ssh-route] 
+[ssh-iptable-ipset4] -> stocké ips bannies 
+[ssh-iptable-ipset6] -> autre version ipset
