@@ -1,0 +1,9 @@
+Nous avons créé un DNS :
+a) Un fichier name.conf : Reprenant les includes des configurations plus comme option, local et zone.
+b) Un fichier name.conf.option : Il contient l’accesList qui permet les requêtes envoyés par les adresses ip spécifiques (les nôtres).
+c) Un fichier name.conf.local : Il va spécifier si c’est un employé accède au services ou un client.
+d) Un fichier name.conf.zone : pour spécifier les différentes zones (Employe, Client ..).
+Un docker hub à été mis en place et est en lien avec notre github.
+Nous avons créé une db qui reprend le nom de domaine avec les adresses des différents services proposé tel que mail, Voip, Web. Il y aussi un fichier qui spécifie que c’est en intranet.
+Un docker file qui permet de faire tourner le DNS.
+B2B et le www ont été spécifiés.(Ou les trouver par adresse ip)
