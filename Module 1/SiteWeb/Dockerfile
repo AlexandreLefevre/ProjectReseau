@@ -1,0 +1,9 @@
+FROM
+
+RUN
+
+COPY B2B/b2b.w15.ephec-ti.be.conf /etc/.....
+COPY Intranet/intranet.w15.ephec-ti.be.conf /etc/.....
+COPY Vitrine/w15.ephec-ti.be.conf /etc/.....
+
+..
