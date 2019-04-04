@@ -5,12 +5,13 @@ $TTL    3600
                            3600         ; Refresh
                             600         ; Retry
                           86400         ; Expire
-                           600 )       ; Negative Cache TTL
+                            600 )       ; Negative Cache TTL
 
 @	IN	NS	ns1
-	IN	A	51.77.245.39
-wt17.ephec-ti.be.	IN	NS	ns1.wt17.ephec-ti.be.
 
+	IN	A	51.77.245.39
+
+wt17.ephec-ti.be.	IN	NS	ns1.wt17.ephec-ti.be.
 
 ns1.wt17.ephec-ti.be.	IN	A	51.77.245.39
 

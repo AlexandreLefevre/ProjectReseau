@@ -9,7 +9,7 @@ view internal {
         recursion yes;
 
         allow-recursion { intern; };
-        zone "local.wt17.ephec-ti.be" {
+        zone "wt17.ephec-ti.be" {
                 type master;
                 file "/etc/bind/db.local.wt17.ephec-ti.be";
         };
