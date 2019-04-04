@@ -1,32 +1,63 @@
 acl intern {
-        51.77.245.38;
-        51.77.245.39;
-        51.77.245.40;
+	51.77.245.38;
+	51.77.245.39;
+	51.77.245.39;
 };
 
 view internal {
         match-clients { intern; };
         recursion yes;
-        
+
+        allow-recursion { intern; };
         zone "wt17.ephec-ti.be" {
                 type master;
-                file "/etc/bind/zones/db.wt17.ephec-ti.be";
-                allow-transfer {51.77.245.38};
+                file "/etc/bind/db.local.wt17.ephec-ti.be";
         };
-        
-        zone "77.51.in-addr.arpa" {
+
+        zone "51.in-addr.arpa" {
                 type master;
-                file "/etc/bind/zones/db.77.51";
-                allow-transfer { 51.77.245.38; };
+                file "/etc/bind/db.77.51";
         };
 };
 
 view external {
         match-clients { any; };
-        recursion yes;
-        
+	recursion no;
+
+        zone "wt17.ephec-ti.be" {
+                type master;
+                file "/etc/bind/db.wt17.ephec-ti.be";
+        };
+
+        zone "51.in-addr.arpa" {
+                type master;
+                file "/etc/bind/db.77.51";
+        };
+};
+
+view default {
         zone "." {
                 type hint;
-                file "/etc/bind/zones/db.root";
-        };   
+                file "/etc/bind/db.root";
+        };
+
+	zone "localhost" {
+		type master;
+		file "/etc/bind/db.local";
+	};
+
+	zone "127.in-addr.arpa" {
+		type master;
+		file "/etc/bind/db.127";
+	};
+
+	zone "0.in-addr.arpa" {
+		type master;
+		file "/etc/bind/db.0";
+	};
+
+	zone "255.in-addr.arpa" {
+		type master;
+		file "/etc/bind/db.255";
+	};
 };

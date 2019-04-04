@@ -1,23 +1,13 @@
-acl trusted {
-        51.77.245.39;   #nathan
-        51.77.245.38;   #timothy
-        51.77.245.40;   #alexandre
-};
-
 options {
         directory "/var/cache/bind";
 
-        recursion yes;
-        allow-recursion { trusted; };
-        listen-on {  51.77.245.39; };
-        allow-transfer {  none; };
-
         forwarders {
-                8.8.4.4;
+              	8.8.8.8;
+		8.8.4.4;
          };
 
         dnssec-validation auto;
 
-        auth-nxdomain no;
+        auth-nxdomain no;    # conform to RFC1035
         listen-on-v6 { any; };
 };

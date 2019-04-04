@@ -1,15 +1,16 @@
-FROM ubuntu:18.04
+FROM ubuntu:latest
 
 RUN apt update && apt upgrade -y && apt install bind9 -y
 
-ADD https://github.com/KodiOko/ProjectReseau/tree/master/Module%201/DNS/named.conf /etc/bind/named.conf
-ADD https://github.com/KodiOko/ProjectReseau/tree/master/Module%201/DNS/named.conf.local /etc/bind/named.conf.local
-ADD https://github.com/KodiOko/ProjectReseau/tree/master/Module%201/DNS/named.conf.options /etc/bind/named.conf.options
 
-ADD https://github.com/KodiOko/ProjectReseau/tree/master/Module%201/DNS/zones/db.wt17.ephec-ti.be /etc/bind/zones/db.wt17.ephec-ti.be
-ADD https://github.com/KodiOko/ProjectReseau/tree/master/Module%201/DNS/zones/db.77.51 /etc/bind/zones/db.77.51
-ADD https://github.com/KodiOko/ProjectReseau/tree/master/Module%201/DNS/zones/db.root /etc/bind/zones/db.root
+COPY ./confDNS2/named.conf /etc/bind/named.conf
+COPY ./confDNS2/named.conf.options /etc/bind/named.conf.options
+COPY ./confDNS2/named.conf.local /etc/bind/named.conf.local
 
-EXPOSE 53
+COPY ./confDNS2/db.wt17.ephec-ti.be /etc/bind/db.wt17.ephec-ti.be
+COPY ./confDNS2/db.77.51 /etc/bind/db.77.51
+COPY ./confDNS2/db.local.wt17.ephec-ti.be /etc/bind/db.local.wt17.ephec-ti.be
 
-CMD named -g
+EXPOSE 53/tcp 53/udp
+
+CMD ["/usr/sbin/named", "-g", "-c", "/etc/bind/named.conf", "-u", "bind"]
