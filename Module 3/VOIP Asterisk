@@ -1,0 +1,231 @@
+mise en place d'un serveur de voip asterisk sur un serveur linux Debian ou Ubuntu
+
+1) On commence par mettre à jour notre distribution et installer les dépendances nécéssaires à la compilation d’Asterisk.
+
+apt-get update && apt-get upgrade
+apt-get install build-essential libxml2-dev libncurses5-dev linux-headers-`uname -r` libsqlite3-dev libssl-dev
+
+2) Puis on créer un dossier ou nous allons placer les sources d’Asterisk dans /usr/src
+
+mkdir /usr/src/asterisk
+cd /usr/src/asterisk
+
+3) On télécharge la dernière version d’Asterisk et on l’ installe (à l’écriture de ce tuto la dernière version d’Asterisk était la 10.7.0)
+
+wget http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-10.7.0.tar.gz
+tar xvzf asterisk-10.7.0.tar.gz
+cd asterik-asterisk-10.7.0
+./configure
+make menuselect
+
+4) La commande make menuselect va faire apparaître un écran qui va vous permettre de personnaliser votre installation d’Asterisk.
+Nous allons en profiter pour installer les sons français pour Asterisk au format µ-law.
+
+Dans Core Sound Package nous allons cocher la case CORE-SOUNDS-FR-ULAW avec la touche Espace puis appuyez sur Echap pour retourner à l’écran précédent.
+
+Puis dans Music On Hold File Packages cochez MOH-OPSOUND-ULAW (Dechochez celui en WAV), appuyez sur Echap et enfin allez dans dans Extras Sound Packages et cochez EXTRA-SOUNDS-FR-ULAW.
+
+Enfin appuyez sur Echap et une fois à l’écran principal refaites Echap et appuyez sur S pour sauvegarder les changements.
+
+Enfin tapez les commandes suivantes pour terminer l’installation:
+
+make
+make install
+make samples
+make config
+
+5) lancement d'asterisk
+
+/etc/init.d/asterisk start
+
+console :
+
+asterisk -cvvvvvvvvvvr
+
+Configuration d’Asterisk et création des comptes utilisateurs
+Pour configurer notre serveur Asterisk nous allons modifier les fichiers suivants:
+
+Le fichier sip.conf : pour la configuration général d’Asterisk
+Le fichier users.conf : pour la configuration des utilisateurs
+Le fichier extensions.conf : pour la configuration du Dialplan
+C’est fichiers se trouvent dans le dossier /etc/asterisk
+
+Avant de commencer la configuration je recommande de vous connecter en SSH à votre serveur Asterisk mais en ouvrant deux sessions simultannées une pour la console Asterisk et une pour l’édition des fichiers de configurations.
+
+Sous Windows je vous recommande MobaXterm et sous Linux Terminator.
+
+Nous allons commencer par éditer le fichier sip.conf qu va nous permettre pour l’instant de mettre les sons par défauts en Français.
+
+language=fr
+
+Création des utilsateurs
+La création des utilisateurs se fait donc dans le fichier users.conf
+
+Voici un exemple de fichier users.conf avec deux utilisateurs John DOE et Albert DUPONT avec comme numéros respectifs le 6001 et le 6002.
+
+[general]
+hasvoicemail = yes
+hassip = yes
+hasiax = yes
+callwaiting = yes
+threewaycalling = yes
+callwaitingcallerid = yes
+transfer = yes
+canpark = yes
+cancallforward = yes
+callreturn = yes
+callgroup = 1
+pickupgroup = 1
+nat = yes
+ 
+[6001]
+type=friend
+host=dynamic
+dtmfmode=rfc2833
+disallow=all
+allow=ulaw
+fullname = John DOE
+username = jdoe
+secret=secret
+context = work
+ 
+[6002]
+type=friend
+host=dynamic
+dtmfmode=rfc2833
+disallow=all
+allow=ulaw
+fullname = Albert DUPONT
+username = adupont
+secret=secret
+context = work
+
+Je vais expliquer ce que veut dire chaque ligne lors de la création d’un utlisateur:
+[6002] –> Numéro SIP
+type=friend –> type d’objet SIP, friend = utilisateur
+host=dynamic –> Vous pouvez vous connecter a ce compte SIP a partir de n’importe quelle adresse IP
+dtmfmode=rfc2833 –> type de rfc utilisé
+disallow=all –> Désactivation de tous les codecs
+allow=ulaw –> Activation du codec µlaw
+fullname = Albert DUPONT –> Prénom et NOM de l’utilisateur (ce qui sera afficher sur le téléphone lors d’un appel)
+username = adupont –> Nom d’utilisateur
+secret=secret –> Mot de passe du compte SIP
+context = work –> Contexte (on verra ça dans le fichier extensions.conf)
+
+Une fois le fichier users.conf enregistré allez dans la console Asterisk, tapez reload en enfin tapez la commande sip show users.
+
+les deux comptes utilisateurs que nous venons de creer devrait y apparaitre.
+
+Asterisk*CLI> sip show users
+Username                   Secret           Accountcode      Def.Context      ACL  ForcerPort
+6002                       secret                            work             No   Yes
+6001                       secret                            work   
+
+Reprenons le fichier users.conf avec les mêmes utilisateurs de créer mais cette fois-ci avec un template:
+
+general]
+hasvoicemail = yes
+hassip = yes
+hasiax = yes
+callwaiting = yes
+threewaycalling = yes
+callwaitingcallerid = yes
+transfer = yes
+canpark = yes
+cancallforward = yes
+callreturn = yes
+callgroup = 1
+pickupgroup = 1
+nat = yes
+ 
+[template](!)
+type=friend
+host=dynamic
+dtmfmode=rfc2833
+disallow=all
+allow=ulaw
+context = work
+ 
+[6001](template)
+fullname = John DOE
+username = jdoe
+secret=secret
+ 
+[6002](template)
+fullname = Albert DUPONT
+username = adupont
+secret=secret
+Dans ce nouveau fichier de configuration nous avons créer un template appelé template et ce template est appelé pour la création des deux utilisateurs.
+Ce qui réduit la création d’un utilisateur à quatre lignes au lieu de dix.
+
+Nos utilisateurs sont créer, mais ils n’ont pas encore la possibilité de s’appeller.
+
+Nous allons maintenant éditer le fichier extensions.conf qui permet de configurer le Dialplan.
+
+5)Configuration du Dialplan
+Le Dialplan ou plan d’appel est le fichier de configuration d’Asterisk qui permet de configurer en gros:
+« Que de passe-t’il si j’appelle tel numéros? »
+
+Nous allons donc configurer Asterisk de tel sorte que l’utilisateur 6001 puisse appeler le numéros 6002.
+
+Voici donc pour exemple mon fichier extensions.conf
+Ce sont le trois dernières lignes qui vont nous intéresser.
+
+[general]
+static=yes
+writeprotect=no
+clearglobalvars=no
+[globals]
+CONSOLE=Console/dsp                             ; Console interface for demo
+IAXINFO=guest                                   ; IAXtel username/password
+TRUNK=DAHDI/G2                                  ; Trunk interface
+TRUNKMSD=1                                      ; MSD digits to strip (usually 1 or 0)
+ 
+[work]
+exten => _6XXX,1,Dial(SIP/${EXTEN},20)
+exten => _6XXX,2,Hangup()
+
+Dans ces trois dernières lignes nous allons voir deux choses, les contextes et les extensions.
+[work] est le contexte c’est une sorte de conteneur dans lequel les utilisateurs faisant partis de ce contexte pourrons communiquer entre eux.
+Lors de la création de nos deux utilisateurs nous avons spécifié le contexte work.
+
+exten => : déclare l’extension (on peut aussi simplement dire numéros)
+_6XXX : Prend les extensions (ou numéros) de 6000 a 6999 le « _ » permet d’utiliser des regex
+1 : Ordre de l’extension
+Dial : application qui va être utilisé
+SIP: Protocol qui va être utilisé
+${EXTEN} : variable de l’extension composé, si on appelle le 6001 la variable ${EXTEN} prendra comme valeur 6001
+20: temps d’attente avant de passer a l’étape suivante.
+
+Donc la ligne exten => _6XXX,1,Dial(SIP/${EXTEN},20) se traduit par:
+Quand on compose le numéro (par exemple) 6001, on appelle le numéro 6001 et si au bout de 20 secondes il n’y a pas de réponses on passe à la ligne du dessous.
+
+Dans le cas du numéros 6001 la ligne devient comme ceci: exten => 6001,1,Dial(SIP/6001,20), mais l’avantage de la ligne précédente est qu’elle permet d’appeler les numéros de 6000 a 6999.
+
+La seconde ligne : exten => _6XXX,2,Hangup() permet de raccrocher si il n’y a pas de réponses au bout des 20 secondes.
+
+Maintenant, vous pouvez enregistrer votre fichier extensions.conf et faire un reload dans la console d’Asterisk.
+
+6)Passer son premier appel
+
+Maintenant que nos deux utlisateurs sont crées et que nous avons configuré les extensions du contexte « work » nous allons pourvoir effectuer un appel entre ces deux utilisateurs.
+
+Vous pouvez configurer un compte SIP à partir de n’importe quel client SIP.
+
+Sous Windows et MacOSX vous avez X-LITE
+Sous Linux vous avez Ekiga
+Sous Android vous avez CSipSimple
+
+Donc ce test je vous recommande d’avoir au moins deux clients SIP.
+
+Un que vous allez configurer avec le compte de John DOE et l’autre avec le compte d’Albert DUPONT.
+
+Voici par exemple la configuration d’un compe sous X-LITE 5 sous Windows 8.
+
+Le Domain est l’adresse IP ou hostname de votre serveur SIP
+
+Une fois les deux client configurés il vous suffit d’appeler par exemple à partir du compe de John DOE (6001) le numéro 6002.
+
+
+
+
