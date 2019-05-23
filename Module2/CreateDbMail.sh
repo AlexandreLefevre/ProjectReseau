@@ -1,13 +1,13 @@
 #!/bin/bash   
 
 service mysqld start 
-mysqladmin -u root password alexandre
+mysqladmin -u root password password
 mysql -u root -p email
 
 #création de la base de données
 mysql> CREATE DATABASE mailserver CHARACTER SET 'utf8';
 mysql> use mailserver;  
-mysql> GRANT SELECT, INSERT, UPDATE, DELETE ON mailserver.* TO 'adminemail'@'localhost' IDENTIFIED BY 'password' WITH GRANT OPTION;
+mysql> GRANT SELECT, INSERT, UPDATE, DELETE ON mailserver.* TO 'alex'@'localhost' IDENTIFIED BY 'password' WITH GRANT OPTION;
 mysql> FLUSH PRIVILEGES;
 
 #création des tables domains,user
