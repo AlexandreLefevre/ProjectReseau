@@ -19,7 +19,10 @@ RUN apt-get update && \
     make && make install  && make samples && make config && \
     apt-get clean 
 
-ADD  https://raw.githubusercontent.com/SebasteinConotte/AdminProjet/master/VOIP/config/sip.conf /etc/asterisk/sip.conf
+ADD  https://github.com/AlexandreLefevre/ProjectReseau/blob/master/Module%203/conf/extensions.conf /etc/asterisk/extensions.conf
+ADD  https://github.com/AlexandreLefevre/ProjectReseau/blob/master/Module%203/conf/voicemail.conf /etc/asterisk/voicemail.conf
+ADD  https://github.com/AlexandreLefevre/ProjectReseau/blob/master/Module%203/conf/users.conf /etc/asterisk/users.conf
+ADD  https://github.com/AlexandreLefevre/ProjectReseau/blob/master/Module%203/conf/sip.conf /etc/asterisk/sip.conf
 
 
 EXPOSE 5060 5060/udp
