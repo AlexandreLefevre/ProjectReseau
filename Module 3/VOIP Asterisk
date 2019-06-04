@@ -1,3 +1,14 @@
+TUTO MISE EN PLACE  ASTERISK
+
+https://doc.ubuntu-fr.org/asterisk
+
+http://denisrosenkranz.com/tuto-installer-et-configurer-asterisk-sous-debian-6-et-ubuntu
+
+
+
+
+
+
 mise en place d'un serveur de voip asterisk sur un serveur linux Debian ou Ubuntu
 
 1) On commence par mettre à jour notre distribution et installer les dépendances nécéssaires à la compilation d’Asterisk.
